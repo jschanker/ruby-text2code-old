@@ -4,6 +4,7 @@ class Fixnum
 	#		self % arg == 0
 	#end
 	def is(arr)
+		#puts "Here " + self.to_s
 		if(arr[0] == "div") then
 			self % arr[1] == 0
 		end

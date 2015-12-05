@@ -3,10 +3,13 @@ require './variables.rb'
 require './logic.rb'
 require './text.rb'
 
-#module A
+require './proxy.rb'
 
-	#def A::method_missing(m, arr=nil)
+module A
+
 	def method_missing(m, arr=nil)
+	#def method_missing(m, arr=nil)
+		puts "Hey"#A.class_variable_get(:X)
 		if(arr.class == Array and arr[0] == "div") then
 			return "#{m}".to_i.is divisible by arr[1]
 			#puts local_variables
@@ -18,6 +21,7 @@ require './text.rb'
 	end
 
 	#puts $x
+
 	let x = 45
 	#X = X + 1
 	let y = 7
@@ -25,10 +29,19 @@ require './text.rb'
 	puts x.is divisible by 7
 	#increase x.by 5
 	#puts x.foo
-	puts x is divisible by 5
-	puts x.to_s
+	X = 101
+	puts X is divisible by 10
+	#puts x.to_s
 
-#end
+	let s = "abcdefcdeg"
+	puts s.get letter length of s
+	puts s.get substring from 3 , 5
+	print s.find first occurrence of "cde"
+	print s.find last occurrence of "cde"
+	print length of s
+	#puts from s letter 5
+
+end
 
 #def increase(x, y, bdg)
 #  eval "#{x} += #{y}", bdg
