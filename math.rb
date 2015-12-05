@@ -12,10 +12,22 @@ class Fixnum
 	def divisible(d)
 		self % d == 0
 	end
+
+	def by(d)
+		[:x, d, binding]
+	end
+
+	def method_missing(d)
+		puts "#{d} Method missing"
+	end
+end
+
+def increase(arr)
+  eval "#{arr[0]} = #{arr[0]} + #{arr[1]}", arr[2]
 end
 
 def is x
-	
+	x
 end
 
 def divisible d
