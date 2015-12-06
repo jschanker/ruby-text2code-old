@@ -1,3 +1,6 @@
+#class Mutablenum
+#end
+
 class Fixnum
 	#def is(op, arg=nil)
 	#	if(op == "div") then
