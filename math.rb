@@ -1,5 +1,53 @@
-#class Mutablenum
-#end
+class Mutablenum
+	attr_accessor :num
+	def initialize(n = 0)
+		@num = n
+	end
+	def increase m
+		@num += m
+	end
+	def decrease m
+		@num -= m
+	end
+	def multiply m
+		@num *= m
+	end
+	def divide m
+		@num /= m
+	end
+	def set m
+		@num = m
+	end
+	def to_i
+		puts "Here"
+		@num.to_i
+	end
+	def to_ary
+		@num.to_ary
+	end
+	def to_s
+		@num.to_s
+	end
+	def + m
+		puts "Here"
+		return @num.+ m
+	end
+	def - m
+		@num.- m
+	end
+	def * m
+		@num.* m
+	end
+	def / m
+		@num./ m
+	end
+	def ** m
+		@num.** m
+	end
+	def method_missing(name, *args)
+		@num.send(name,args)
+	end
+end
 
 class Fixnum
 	#def is(op, arg=nil)
@@ -9,7 +57,10 @@ class Fixnum
 	def is(arr)
 		#puts "Here " + self.to_s
 		if(arr[0] == "div") then
-			self % arr[1] == 0
+			return self % arr[1] == 0
+		end
+		if(arr.length == 1 and arr[0].class == Array and arr[0][0] == "div") then
+			return self % arr[0][1] == 0
 		end
 	end
 
