@@ -16,11 +16,37 @@ class Variables
 			args[0].variable = name
 			if(args[0].action == "divisible") then
 				variable = instance_variable_get "@#{name}"
-				return variable.divisibleBy?(args[0].values[0])
+				return variable.divisible_by?(args[0].values[0])
+			elsif(args[0].action == "even") then
+				variable = instance_variable_get "@#{name}"
+				return variable.even?
+			elsif(args[0].action == "odd") then
+				variable = instance_variable_get "@#{name}"
+				return variable.odd?
+			elsif(args[0].action == "positive") then
+				variable = instance_variable_get "@#{name}"
+				return variable.positive?
+			elsif(args[0].action == "negative") then
+				variable = instance_variable_get "@#{name}"
+				return variable.negative?
+			elsif(args[0].action == "prime") then
+				variable = instance_variable_get "@#{name}"
+				return variable.prime?
+			elsif(args[0].action == "whole") then
+				variable = instance_variable_get "@#{name}"
+				return variable.whole?
+
+			elsif(args[0].action == "root") then
+				variable = instance_variable_get "@#{name}"
+				return variable.sqrt
 			end
 			return args[0]
 		else
-			return instance_variable_get "@#{name}"
+			#begin
+				return instance_variable_get "@#{name}"
+			#rescue
+			#	puts "ERROR"
+			#end
 		end
 	end
 
@@ -34,6 +60,10 @@ class Variables
 
 	def self.is(inst)
 		inst
+	end
+
+	def self.of(val)
+		Instruction.new(val)
 	end
 
 	def self.increase(inst)
@@ -55,6 +85,51 @@ class Variables
 	def self.divisible(inst)
 		inst.action = "divisible"
 		return inst
+	end
+	def self.even(inst)
+		inst.action = "even"
+		return inst
+	end
+	def self.odd(inst)
+		inst.action = "odd"
+		return inst
+	end
+	def self.prime(inst)
+		inst.action = "prime"
+		return inst
+	end
+	def self.positive(inst)
+		inst.action = "positive"
+		return inst
+	end
+	def self.negative(inst)
+		inst.action = "negative"
+		return inst
+	end
+	def self.whole(inst)
+		inst.action = "whole"
+		return inst
+	end
+	def self.root(inst)
+		inst = Instruction.new(inst) unless inst.class == Instruction
+		inst.action = "root"
+		return inst
+	end
+	def self.sqrt(inst)
+		inst = Instruction.new(inst) unless inst.class == Instruction
+		inst.action = "root"
+		return self.square(inst)
+	end
+	def self.absolute(inst)
+		return inst.abs unless inst.class == Instruction
+		return inst.values[0] if inst.values and inst.values.length > 0 end
+
+	def self.square(inst)
+		#inst.action = "square" unless inst.action
+		#return inst
+		if inst.action == "root" and inst.values.length > 0 then
+			return inst.values[0].sqrt
+		end
 	end
 '''
 	def createNewVariable(name, value)
