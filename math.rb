@@ -17,6 +17,14 @@ class MutableNum
 		@num /= m
 	end
 
+	def sqrt
+		return Math.sqrt(@num)
+	end
+
+	def ^ pow
+		return @num**pow
+	end
+
 	def to_s
 		#return @num
 		return @num.to_s # why is to_s needed to avoid #<MutableNum:...> display?
@@ -38,8 +46,58 @@ class MutableNum
 	'''
 end
 
-class Fixnum
-	def divisibleBy?(d)
+class Float
+	def positive?
+		return self > 0
+	end
+	def negative?
+		return self < 0
+	end
+	def divisible_by?(d)
 		self % d == 0
+	end
+	def prime?
+		return false if self <= 1
+		for d in 2..Math.sqrt(self) do
+			return false if self.divisible_by?(d)
+		end
+		return true
+	end
+	def whole?
+		return self % 1 == 0
+	end
+	def ^ pow
+		return self ** pow
+	end
+	def sqrt
+		return Math.sqrt(self)
+	end
+end
+
+class Fixnum
+	def positive?
+		return self > 0
+	end
+	def negative?
+		return self < 0
+	end
+	def divisible_by?(d)
+		self % d == 0
+	end
+	def prime?
+		return false if self <= 1
+		for d in 2..Math.sqrt(self) do
+			return false if self.divisible_by?(d)
+		end
+		return true
+	end
+	def whole?
+		return true
+	end
+	def ^ pow
+		return self ** pow
+	end
+	def sqrt
+		return Math.sqrt(self)
 	end
 end
