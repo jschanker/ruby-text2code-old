@@ -1,5 +1,5 @@
-def set args
-	Variables.send(:set, args)
+def set inst
+	Variables.send(:set, inst)
 end
 
 def increase inst
@@ -18,21 +18,72 @@ def divide inst
 	Variables.send(:divide, inst)
 end
 
-def to args
-	Variables.send(:to, args)
+def square inst
+	Variables.send(:square, inst)
 end
 
-def by args
-	Variables.send(:by, args)
+def root inst
+	Variables.send(:root, inst)
 end
 
-def is args
-	Variables.send(:is, args)
+def sqrt inst
+	Variables.send(:sqrt, inst)
 end
 
-def divisible args
-	Variables.send(:divisible, args)
+def of inst
+	Variables.send(:of, inst)
 end
+
+def absolute inst
+	Variables.send(:absolute, inst)
+end
+
+def remainder inst
+	Variables.send(:remainder, inst)
+end
+
+def to inst
+	Variables.send(:to, inst)
+end
+
+def by inst
+	Variables.send(:by, inst)
+end
+
+def is inst
+	Variables.send(:is, inst)
+end
+
+def divisible inst
+	Variables.send(:divisible, inst)
+end
+
+def even
+	Variables.send(:even, Instruction.new)
+end
+
+def positive
+	Variables.send(:positive, Instruction.new)
+end
+
+def negative
+	Variables.send(:negative, Instruction.new)
+end
+
+def whole
+	Variables.send(:whole, Instruction.new)
+end
+
+def odd
+	Variables.send(:odd, Instruction.new)
+end
+
+def prime
+	Variables.send(:prime, Instruction.new)
+end
+
+#def repeat
+#end
 
 def method_missing(name, *args)
 	if args.length > 0 then # Variables - set
