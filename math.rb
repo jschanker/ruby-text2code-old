@@ -25,9 +25,25 @@ class MutableNum
 		return @num**pow
 	end
 
+	def == n
+		return @num == n
+	end
+
 	def to_s
 		#return @num
 		return @num.to_s # why is to_s needed to avoid #<MutableNum:...> display?
+	end
+
+	def divisible d
+		return @num % d == 0
+	end
+
+	def is bool
+		bool
+	end
+
+	def by d
+		d
 	end
 
 	def method_missing(name, *args)
@@ -52,6 +68,9 @@ class Float
 	end
 	def negative?
 		return self < 0
+	end
+	def even?
+		self.to_i.even? if self.whole?
 	end
 	def divisible_by?(d)
 		self % d == 0
@@ -99,5 +118,13 @@ class Fixnum
 	end
 	def sqrt
 		return Math.sqrt(self)
+	end
+
+	def is(inst)
+		if(inst.class == Instruction) then
+			if(inst.action == "divisible") then
+				self.divisible_by?(inst.values[0])
+			end
+		end
 	end
 end
