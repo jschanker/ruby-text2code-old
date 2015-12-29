@@ -1,5 +1,6 @@
 require './variables.rb'
 require './math.rb'
+require './text.rb'
 require './proxy.rb'
 
 set d to 1.23
@@ -62,20 +63,20 @@ end
 
 set perfectNumStr to "The perfect numbers from 2 to 100 are as follows: "
 #puts "-----"
-for number in 2..100 do
+for numbers in 2..100 do
 	set sum to 1
-	set num to number
-	for d in 2..(square root number) do
-		if num is divisible by d and d != (square root number) then
+	set num to numbers
+	for d in 2..(square root numbers) do
+		if num is divisible by d and d != (square root numbers) then
 			#puts "D: #{num}, #{d}, #{square root num}"
-			increase sum by d + number / d
+			increase sum by d + numbers / d
 		elsif num is divisible by d then
 			increase sum by d
 		end
 	end
 	#puts "#{num} : #{sum}"
 	if sum == num then
-		set perfectNumStr to perfectNumStr + number.to_s + ", "
+		set perfectNumStr to perfectNumStr + numbers.to_s + ", "
 	end
 end
 
@@ -118,22 +119,59 @@ set str to "abcdefgde"
 #str = "abcdefg"
 puts "\n---"
 puts from str get letter length of str
+puts from "abcdefgde".get letter length of str
 puts length of str
-puts from text str get substring from letter 3, (length of str) 
+puts length of "abcdefgde"
+puts from text str get substring from letter 3, (length of str)
+puts from text "abcdefgde".get substring from letter 3, (length of str) 
 puts from text str find first occurrence of text "de"
+puts from text "abcdefgde".find first occurrence of text "de"
 puts from text str find last occurrence of text "de"
-puts str.index("d")
+puts from text "abcdefgde".find last occurrence of text "de"
+#puts str.index("d")
 puts "---"
 
+set a to 58
+set b to remainder of a divided by 10
+puts remainder of a divided by b - 2
+puts (prompt to get number with message "Enter something interesting: ") + 5
+set number to remainder of a divided by 20
+puts "*******"
+puts number
+puts "*******"
+
+(b-5).times do 
+	puts "abc"
+end
+
+b.times do 
+	puts "def"
+end
+
+#puts for(5)
 
 
-def count i, start, stop, &b
-	for j in start..stop do
-		yield j
+#def count i, start, stop, &b
+#	for j in start..stop do
+#		yield j
+#	end
+#end
+
+def count a
+end
+
+def i a
+end
+
+def withs a
+end
+
+def froms start, stop, &block
+	for m in start..stop do
+		yield m
 	end
 end
 
-def with i, j, &block
-	yield i, j
-	return block
-end
+count withs i (froms 1, 5 do |i|
+	puts i
+end)
