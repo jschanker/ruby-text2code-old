@@ -23,8 +23,8 @@ puts d is divisible by 7
 puts d is divisible by 2
 puts d is odd
 
-set d to square root of 16
-puts 5^2
+set d to square root 16
+puts 7^2
 puts d + 1
 puts square root of (d + 1)
 puts sqrt(d + 1)
@@ -58,4 +58,82 @@ a = 0
 if a < 5 then
 	a += 1
 	puts a
+end
+
+set perfectNumStr to "The perfect numbers from 2 to 100 are as follows: "
+#puts "-----"
+for number in 2..100 do
+	set sum to 1
+	set num to number
+	for d in 2..(square root number) do
+		if num is divisible by d and d != (square root number) then
+			#puts "D: #{num}, #{d}, #{square root num}"
+			increase sum by d + number / d
+		elsif num is divisible by d then
+			increase sum by d
+		end
+	end
+	#puts "#{num} : #{sum}"
+	if sum == num then
+		set perfectNumStr to perfectNumStr + number.to_s + ", "
+	end
+end
+
+puts perfectNumStr
+set d to 15
+#p 5.is
+p 20.is divisible by d
+
+
+
+set b to square root 9
+increase b by absolute -12 # added instruction
+puts b
+
+if b is divisible by 10 then
+  print "d is divisible by 10"
+elsif b is even then 
+  print "d is even"
+elsif b is divisible by 5
+  print "d is divisible by 5" # this is what's printed for above example
+else
+  print "d is odd and not divisible by 5"
+end
+
+
+set m to square root 9
+increase m by absolute -12 # increase was used as an added instruction: d now evaluates to 15
+
+if m is divisible by 10 then
+  print "m is divisible by 10"
+elsif m is even then
+  print "m is even"
+elsif m is divisible by 5
+  print "m is divisible by 5" # this 
+else
+  print "m is odd and not divisible by 5"
+end
+
+set str to "abcdefgde"
+#str = "abcdefg"
+puts "\n---"
+puts from str get letter length of str
+puts length of str
+puts from text str get substring from letter 3, (length of str) 
+puts from text str find first occurrence of text "de"
+puts from text str find last occurrence of text "de"
+puts str.index("d")
+puts "---"
+
+
+
+def count i, start, stop, &b
+	for j in start..stop do
+		yield j
+	end
+end
+
+def with i, j, &block
+	yield i, j
+	return block
 end
