@@ -54,7 +54,11 @@ class Variables
 	end
 
 	def self.to(val)
-		Instruction.new(val)
+		if(val.class != Instruction) then
+			return Instruction.new(val)
+		else
+			return val
+		end
 	end
 
 	def self.by(val)
@@ -88,6 +92,17 @@ class Variables
 	def self.divide(inst)
 		variable = instance_variable_get "@#{inst.variable}"
 		variable.send(:divide, inst.values[0])
+	end
+	def self.divided(inst)
+		if(inst.class != Instruction) then
+			inst = Instruction.new(inst)
+		end
+		inst.action = "divided"
+		inst
+	end
+	def self.remainder(inst)
+		variable = instance_variable_get "@#{inst.variable}"
+		variable.send(:remainder, inst.values[0])
 	end
 	def self.divisible(inst)
 		inst.action = "divisible"
@@ -168,6 +183,9 @@ class Variables
 
 	def self.text(inst)
 		if inst.class == Instruction then
+			if inst.action == "message" then
+				inst.action = "text"
+			end
 			return inst
 		else
 			return Instruction.new(inst)
@@ -222,6 +240,31 @@ class Variables
 		else
 			return
 		end
+	end
+
+	def self.number(inst)
+		if inst and inst.class == Instruction and inst.action == "message" then
+			inst.action = "number"
+			return inst
+		else
+			return self.send(:method_missing, :number, inst)
+		end
+	end
+
+	def self.message(value)
+		inst = Instruction.new(value)
+		inst.action = "message"
+		return inst 
+	end
+
+	def self.with(inst)
+		inst
+	end
+
+	def self.prompt(inst)
+		puts inst.values[0]
+		var input = gets.chomp
+		return inst.action == "number" ? input.to_f : input
 	end
 
 
