@@ -16,7 +16,9 @@ class MutableNum
 	def divide m
 		@num /= m
 	end
-
+	def remainder d
+		@num % d
+	end
 	def sqrt
 		return Math.sqrt(@num)
 	end
@@ -44,6 +46,10 @@ class MutableNum
 
 	def by d
 		d
+	end
+
+	def times &block
+		@num.times {yield}
 	end
 
 	def method_missing(name, *args)
@@ -94,6 +100,9 @@ class Float
 end
 
 class Fixnum
+	def to(inst)
+		# TODO : Fill in later
+	end
 	def positive?
 		return self > 0
 	end
