@@ -50,6 +50,46 @@ def by inst
 	Variables.send(:by, inst)
 end
 
+def from(inst)
+	Variables.send(:from, inst)
+end
+
+def text(inst)
+	Variables.send(:text, inst)
+end
+
+def get(inst)
+	Variables.send(:get, inst)
+end
+
+def letter(inst, val=nil)
+	Variables.send(:letter, inst, val)
+end
+
+def find(inst)
+	Variables.send(:find, inst)
+end
+
+def first(inst)
+	Variables.send(:first, inst)
+end
+
+def last(inst)
+	Variables.send(:last, inst)
+end
+
+def occurrence(inst)
+	Variables.send(:occurrence, inst)
+end
+
+def substring(inst)
+	Variables.send(:substring, inst)
+end
+
+def length(inst)
+	Variables.send(:length, inst)
+end
+
 def is inst
 	Variables.send(:is, inst)
 end
