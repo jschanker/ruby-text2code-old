@@ -36,17 +36,20 @@ class Variables
 				variable = instance_variable_get "@#{name}"
 				return variable.whole?
 
-			elsif(args[0].action == "root") then
-				variable = instance_variable_get "@#{name}"
-				return variable.sqrt
+			#elsif(args[0].action == "root") then
+			#	variable = instance_variable_get "@#{name}"
+			#	return variable.sqrt
 			end
 			return args[0]
+		elsif args[0]
+			#puts args[0].class
+			return args[0]
 		else
-			#begin
+			begin
 				return instance_variable_get "@#{name}"
-			#rescue
-			#	puts "ERROR"
-			#end
+			rescue
+				"Error: Unrecoverable error"
+			end
 		end
 	end
 
@@ -63,7 +66,11 @@ class Variables
 	end
 
 	def self.of(val)
-		Instruction.new(val)
+		if(val.class == Instruction) then
+			return val
+		else
+			return Instruction.new(val)
+		end
 	end
 
 	def self.increase(inst)
@@ -131,6 +138,94 @@ class Variables
 			return inst.values[0].sqrt
 		end
 	end
+
+	def self.get(inst)
+		inst
+	end
+
+	def self.occurrence(inst)
+		inst
+	end
+
+	def self.first(inst)
+		inst.action = "first"
+		return inst
+	end
+
+	def self.last(inst)
+		inst.action = "last"
+		return inst
+	end
+
+	def self.find(inst)
+		if inst.action == "first" then
+			inst.action = "find first"
+		elsif inst.action == "last" then
+			inst.action = "find last"
+		end
+		return inst
+	end
+
+	def self.text(inst)
+		if inst.class == Instruction then
+			return inst
+		else
+			return Instruction.new(inst)
+		end
+	end
+
+	def self.letter(val, val2=nil)
+		inst = Instruction.new(val)
+		if val2 then 
+			inst.addValue(val2)
+			inst.action = "substring"
+		else
+			inst.action = "letter"
+		end
+		return inst
+	end
+
+	def self.length(inst)
+		#str = instance_variable_get "@#{inst.variable}"
+		#p str
+		return inst.values[0].length
+	end
+
+	def self.substring(inst)
+		inst.action = "substring"
+		return inst
+	end
+
+	def self.from(inst, val=nil)
+		if inst.class == Instruction and inst.variable then
+			if inst.action == "letter" then
+				str = instance_variable_get "@#{inst.variable}"
+				return str[inst.values[0]-1..inst.values[0]-1] # .. used for pre-1.9 versions
+			elsif inst.action == "substring" then
+				str = instance_variable_get "@#{inst.variable}"
+				return str[inst.values[0]-1..inst.values[1]-1]
+			elsif inst.action == "find first" then
+				str = instance_variable_get "@#{inst.variable}"
+				index = str.index(inst.values[0])
+				return index ? index + 1 : nil
+			elsif inst.action == "find last" then
+				str = instance_variable_get "@#{inst.variable}"
+				index = str.rindex(inst.values[0])
+				return index ? index + 1 : nil 
+			end
+		elsif inst.class == Instruction then
+			return inst
+		elsif inst and val then
+			#inst = Instruction.new(inst)
+			inst.addValue(val)
+			return inst
+		else
+			return
+		end
+	end
+
+
+
 '''
 	def createNewVariable(name, value)
 		instance_variable_set "@{name}", value
