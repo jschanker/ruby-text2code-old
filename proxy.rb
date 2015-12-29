@@ -98,6 +98,14 @@ def divisible inst
 	Variables.send(:divisible, inst)
 end
 
+def divided inst
+	Variables.send(:divided, inst)
+end
+
+def remainder inst
+	Variables.send(:remainder, inst)
+end
+
 def even
 	Variables.send(:even, Instruction.new)
 end
@@ -120,6 +128,26 @@ end
 
 def prime
 	Variables.send(:prime, Instruction.new)
+end
+
+def prompt(inst)
+	Variables.send(:prompt, inst)
+end
+
+def for(inst)
+	Variables.send(:for, inst)
+end
+
+def number(inst=nil)
+	Variables.send(:number, inst)
+end
+
+def message(text)
+	Variables.send(:message, text)
+end
+
+def with(inst)
+	Variables.send(:with, inst)
 end
 
 #def repeat
