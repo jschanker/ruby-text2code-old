@@ -1,5 +1,6 @@
-class Mutablenum
+class MutableNum
 	attr_accessor :num
+
 	def initialize(n = 0)
 		@num = n
 	end
@@ -15,80 +16,124 @@ class Mutablenum
 	def divide m
 		@num /= m
 	end
-	def set m
-		@num = m
+	def remainder d
+		@num % d
 	end
-	def to_i
-		puts "Here"
-		@num.to_i
+	def sqrt
+		return Math.sqrt(@num)
 	end
-	def to_ary
-		@num.to_ary
+
+	def ^ pow
+		return @num**pow
 	end
+
+	def == n
+		return @num == n
+	end
+
 	def to_s
-		@num.to_s
+		#return @num
+		return @num.to_s # why is to_s needed to avoid #<MutableNum:...> display?
 	end
-	def + m
-		puts "Here"
-		return @num.+ m
+
+	def divisible d
+		return @num % d == 0
 	end
-	def - m
-		@num.- m
+
+	def is bool
+		bool
 	end
-	def * m
-		@num.* m
+
+	def by d
+		d
 	end
-	def / m
-		@num./ m
+
+	def times &block
+		@num.times {yield}
 	end
-	def ** m
-		@num.** m
-	end
+
 	def method_missing(name, *args)
-		@num.send(name,args)
+		#puts name
+		#puts 42.send(name, 10)
+		#puts send(:name, args)
+		return self.num.send(name, *args)
+	end
+
+	'''
+	def self.set args
+		args.each do |arg|
+			puts arg
+		end
+	end
+	'''
+end
+
+class Float
+	def positive?
+		return self > 0
+	end
+	def negative?
+		return self < 0
+	end
+	def even?
+		self.to_i.even? if self.whole?
+	end
+	def divisible_by?(d)
+		self % d == 0
+	end
+	def prime?
+		return false if self <= 1
+		for d in 2..Math.sqrt(self) do
+			return false if self.divisible_by?(d)
+		end
+		return true
+	end
+	def whole?
+		return self % 1 == 0
+	end
+	def ^ pow
+		return self ** pow
+	end
+	def sqrt
+		return Math.sqrt(self)
 	end
 end
 
 class Fixnum
-	#def is(op, arg=nil)
-	#	if(op == "div") then
-	#		self % arg == 0
-	#end
-	def is(arr)
-		#puts "Here " + self.to_s
-		if(arr[0] == "div") then
-			return self % arr[1] == 0
-		end
-		if(arr.length == 1 and arr[0].class == Array and arr[0][0] == "div") then
-			return self % arr[0][1] == 0
-		end
+	def to(inst)
+		# TODO : Fill in later
 	end
-
-	def divisible(d)
+	def positive?
+		return self > 0
+	end
+	def negative?
+		return self < 0
+	end
+	def divisible_by?(d)
 		self % d == 0
 	end
-
-	def by(d)
-		[:x, d, binding]
+	def prime?
+		return false if self <= 1
+		for d in 2..Math.sqrt(self) do
+			return false if self.divisible_by?(d)
+		end
+		return true
+	end
+	def whole?
+		return true
+	end
+	def ^ pow
+		return self ** pow
+	end
+	def sqrt
+		return Math.sqrt(self)
 	end
 
-	def method_missing(d)
-		puts "#{d} Method missing"
+	def is(inst)
+		if(inst.class == Instruction) then
+			if(inst.action == "divisible") then
+				self.divisible_by?(inst.values[0])
+			end
+		end
 	end
-end
-
-def increase(arr)
-  eval "#{arr[0]} = #{arr[0]} + #{arr[1]}", arr[2]
-end
-
-def is x
-	x
-end
-
-def divisible d
-	["div", d]
-end
-
-def by d
-	d
 end
