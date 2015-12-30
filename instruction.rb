@@ -5,7 +5,7 @@ class Instruction
 
 	def initialize(val=nil)
 		@values = []
-		if val then
+		if val != nil then
 			self.addValue(val)
 		end
 	end
