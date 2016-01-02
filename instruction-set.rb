@@ -96,35 +96,46 @@ module Text2Code
 		end
 
 		def add_instruction(parts, method, category)
-			instruction = Instruction.new
+			previousInstructionSegments = [Instruction.new]
+			currentInstructionSegments = []
 			(parts.length-1).downto(0).each do |index|
-				parts[index].each do |method_name, instruction_type|
-					@method_pairs[method_name] = [] unless @method_pairs.has_key?(method_name) || 
-					                                       instruction_type == InstructionPart::VARIABLE ||
-					                                       instruction_type == InstructionPart::VALUE
-					
-					instruction_cp = Instruction.new(instruction)
-					instruction_cp.method_name = method if index == 0
-					instruction_cp.class_receiver = category unless instruction.receiver
-					instruction_cp.part_type = instruction_type
-					@method_pairs[method_name].push(instruction_cp) unless instruction_type == InstructionPart::VARIABLE ||
-					                                                       instruction_type == InstructionPart::VALUE
+				previousInstructionSegments.each do |instruction|
+					parts[index].each do |method_name, instruction_type|
+						method_name = :method_missing if instruction_type == InstructionPart::VARIABLE 
+						@method_pairs[method_name] = [] unless @method_pairs.has_key?(method_name) || 
+						                                       instruction_type == InstructionPart::VALUE
+						
+						instruction_cp = Instruction.new(instruction)
+						instruction_cp.method_name = method if index == 0
+						instruction_cp.class_receiver = category unless instruction.receiver
+						instruction_cp.part_type = instruction_type
+						@method_pairs[method_name].push(instruction_cp) unless instruction_type == InstructionPart::VALUE
 
-					case instruction_type 
-					when InstructionPart::ACTION
-						instruction.add_action(method_name)
-					when InstructionPart::VALUE
-						instruction.add_value
-					when InstructionPart::TWO_VALUES
-						instruction.add_value
-						instruction.add_value
-					when InstructionPart::VARIABLE
-						instruction.receiver = Object
+						#p instruction_cp if method == :sqrt
+						instruction_cp = Instruction.new(instruction_cp) # don't change instruction_cp added to @method_pairs[method_name]
+
+						case instruction_type 
+						when InstructionPart::ACTION
+							instruction_cp.add_action(method_name)
+						when InstructionPart::VALUE
+							instruction_cp.add_value
+						when InstructionPart::TWO_VALUES
+							instruction_cp.add_value
+							instruction_cp.add_value
+						when InstructionPart::VARIABLE
+							instruction_cp.receiver = Object
+						end
+
+						currentInstructionSegments.push(instruction_cp)
 					end
 				end
+
+				previousInstructionSegments = currentInstructionSegments
+				currentInstructionSegments = []
 			end
 		end
 
+'''
 		def self.method_missing(name, *args)
 			if(args[0] && args[0].class == Instruction) then
 				instruction = args[0]
@@ -140,8 +151,10 @@ module Text2Code
 				InstructionCategory::VARIABLE.get(name)
 			end
 		end
-
+'''
 		def create_methods
+			puts "CREATE METHODS:"
+			p @method_pairs[:sqrt]
 			@method_pairs.each do |method_name, instructions|
 				#alias_method
 				p method_name
@@ -152,7 +165,9 @@ module Text2Code
 					# or a list of (non-Instruction) values
 					#p *args
 					ret_val = nil
+					variable_name = args.shift if method_name == :method_missing
 					instruction = Instruction.new(*args)
+					instruction.receiver = Variables.get(variable_name) if variable_name
 					p instructions
 					p method_name
 					p instruction
@@ -172,6 +187,8 @@ module Text2Code
 							case inst.part_type
 							when InstructionPart::ACTION
 								instruction.add_action(method_name)
+							when InstructionPart::VARIABLE
+								instruction.class_receiver = InstructionCategory::VARIABLE
 							end
 							ret_val = instruction
 							if inst.method_name then
@@ -382,16 +399,32 @@ module Text2Code
 		                         {:val => InstructionPart::VALUE}], :prompt, 
 		                         InstructionCategory::TEXT)
 
+	def Text2Code::method_missing(name, *args)
+		#puts "GOT HERE"
+		p name
+		#inst_set.send(:to, 5)
+		#p inst_set.my_methods
+		puts args[0]
+		Text2Code::INSTRUCTION_SET.send(name, *args)
+	end
+
 	inst_set.create_methods()
-	puts "Foo"
+	INSTRUCTION_SET = inst_set # shouldn't need to set constant like this
+	p self
+	#p inst_set.send(:to, 5)
+	p square root of 8
+	p absolute value of MutableNum(-230)
+        d = MutableNum.new(10)
+	p d.divisible by 8
+	#puts "Foo"
 	#inst_set.to 1, 2, "abc"
 	#my_inst = Instruction.new(5, 8)
 	#my_inst.add_action("abc")
 	#my_inst.receiver = "Foo"
 	#inst_set.to my_inst
 	#inst_set.sqrt :EMPTY
-	puts inst_set.sqrt(6.25)
-	puts inst_set.square(inst_set.root(inst_set.of(5)))
-	puts "HERE"
-	puts inst_set.square(inst_set.root(inst_set.of(MutableNum.new(0.0625))))
+
+	#puts inst_set.sqrt(6.25)
+	#puts inst_set.square(inst_set.root(inst_set.of(5)))
+	#puts inst_set.square(inst_set.root(inst_set.of(MutableNum.new(0.0625))))
 end
