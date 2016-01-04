@@ -107,7 +107,7 @@ module Text2Code
 						
 						instruction_cp = Instruction.new(instruction)
 						instruction_cp.method_name = method if index == 0
-						instruction_cp.class_receiver = category unless instruction.receiver
+						instruction_cp.class_receiver = category #unless instruction.receiver
 						instruction_cp.part_type = instruction_type
 						@method_pairs[method_name].push(instruction_cp) unless instruction_type == InstructionPart::VALUE
 
@@ -167,7 +167,21 @@ module Text2Code
 					ret_val = nil
 					variable_name = args.shift if method_name == :method_missing
 					instruction = Instruction.new(*args)
-					instruction.receiver = Variables.get(variable_name) if variable_name
+
+					
+					if method_name == :method_missing then
+						#variable_name = args[0]
+						puts "VN:"
+						p variable_name
+						p args[0]
+						puts "____________________________________________________________________________________________"
+						#variable_value = Variables.get(variable_name)
+						#if variable_name && variable_value then
+						#	instruction.receiver = variable_value
+						#end
+					end
+					
+					#instruction.receiver = Variables.get(variable_name) if variable_name && args.length == 0
 					p instructions
 					p method_name
 					p instruction
@@ -188,7 +202,16 @@ module Text2Code
 							when InstructionPart::ACTION
 								instruction.add_action(method_name)
 							when InstructionPart::VARIABLE
-								instruction.class_receiver = InstructionCategory::VARIABLE
+								variable_value = Variables.get(variable_name)
+								if variable_name and variable_value then
+									puts "----------------"
+									p variable_name
+									puts "-----------------"
+									instruction.receiver = variable_value
+								else 
+									instruction.class_receiver = InstructionCategory::VARIABLE
+									instruction.add_value(variable_name) if variable_name
+								end
 							end
 							ret_val = instruction
 							if inst.method_name then
@@ -265,8 +288,11 @@ module Text2Code
 
 	inst_set = InstructionSet.new()
 
+	inst_set.add_instruction([{:var1 => InstructionPart::VARIABLE}], :get, 
+		                         InstructionCategory::VARIABLE)
+
 	inst_set.add_instruction([{:set => InstructionPart::ACTION}, 
-		                         {:var1 => InstructionPart::VARIABLE}, 
+		                         {:var1 => InstructionPart::VALUE}, 
 		                         {:to => InstructionPart::PREPOSITION},
 		                         {:val1 => InstructionPart::VALUE}], :set, 
 		                         InstructionCategory::VARIABLE)
@@ -401,30 +427,26 @@ module Text2Code
 
 	def Text2Code::method_missing(name, *args)
 		#puts "GOT HERE"
-		p name
+		#p name
 		#inst_set.send(:to, 5)
 		#p inst_set.my_methods
-		puts args[0]
-		Text2Code::INSTRUCTION_SET.send(name, *args)
+		#puts args[0]
+		if args.length > 0 then
+			Text2Code::INSTRUCTION_SET.send(name, *args)
+		else
+			puts "M"
+			Variables.get(name)
+		end
 	end
 
 	inst_set.create_methods()
 	INSTRUCTION_SET = inst_set # shouldn't need to set constant like this
 	p self
 	#p inst_set.send(:to, 5)
-	p square root of 8
-	p absolute value of MutableNum(-230)
-        d = MutableNum.new(10)
-	p d.divisible by 8
-	#puts "Foo"
-	#inst_set.to 1, 2, "abc"
-	#my_inst = Instruction.new(5, 8)
-	#my_inst.add_action("abc")
-	#my_inst.receiver = "Foo"
-	#inst_set.to my_inst
-	#inst_set.sqrt :EMPTY
-
-	#puts inst_set.sqrt(6.25)
-	#puts inst_set.square(inst_set.root(inst_set.of(5)))
-	#puts inst_set.square(inst_set.root(inst_set.of(MutableNum.new(0.0625))))
+	#p square root of 8
+	#p absolute value of MutableNum.new(-230)
+	p set d to -230
+	increase d by 10
+	puts absolute of d
+	p d (is divisible by 5)
 end
