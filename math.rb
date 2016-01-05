@@ -19,8 +19,21 @@ class MutableNum
 	def remainder d
 		@num % d
 	end
+
+	def self.sqrt val
+		return val.class == MutableNum ? val.sqrt : Math.sqrt(val)
+	end
+
 	def sqrt
 		return Math.sqrt(@num)
+	end
+
+	def self.abs val
+		return val.class == MutableNum ? val.abs : abs(val)
+	end
+
+	def abs
+		return @num.abs
 	end
 
 	def ^ pow
@@ -57,6 +70,10 @@ class MutableNum
 		#puts 42.send(name, 10)
 		#puts send(:name, args)
 		return self.num.send(name, *args)
+	end
+
+	def set(x)
+		@num = x
 	end
 
 	'''
@@ -136,4 +153,5 @@ class Fixnum
 			end
 		end
 	end
+
 end
