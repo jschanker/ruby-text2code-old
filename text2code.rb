@@ -215,38 +215,7 @@ module Text2Code
 
 					return instruction_to_run || Instruction.new(*args)
 					
-					ret_val = instruction
-					instructions.each do |inst|
-						if inst.has_same_form(instruction) then
-							case inst.part_type
-							when InstructionPart::ACTION
-								instruction.add_action(method_name)
-							when InstructionPart::ACTION_VALUE
-								instruction.add_value(method_name)
-							when InstructionPart::VARIABLE
-								variable_value = Variables.get(variable_name)
-								if variable_name && variable_value then
-									instruction.receiver = variable_value
-								else 
-									instruction.class_receiver = InstructionCategory::VARIABLE
-									instruction.add_value(variable_name) if variable_name
-								end
-							end
-							ret_val = instruction
-
-							if inst.method_name then
-								if instruction.receiver then
-									ret_val = instruction.receiver.send(inst.method_name, *instruction.values)
-								elsif inst.class_receiver then
-									ret_val = inst.class_receiver.send(inst.method_name, *instruction.values)
-								end
-							end
-						end
-					end
-
-					ret_val # loop above should be rewritten as while; should break as soon as it finds a matching instruction
-				'''
-				nil
+					nil
 				end
 			end
 
