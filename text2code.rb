@@ -1,4 +1,9 @@
+class Fixnum
+	def ^(exponent); self**exponent end
+end
+
 class Numeric
+	def ^(exponent); self**exponent end
 	def sqrt; Math.sqrt(self); end
 	def abs; self.abs; end
 	def positive?; self > 0; end
@@ -12,16 +17,53 @@ class Numeric
 		end
 		return true
 	end
+
+	def is(inst)
+		Text2Code::INST_SET.send(:is, inst)
+		set __free_num__ to self
+		Text2Code::INST_SET.send(:__free_num__, inst)
+	end
+
+	def divided(inst)
+		Text2Code::INST_SET.send(:divided, inst)
+		set __free_num__ to self
+		Text2Code::INST_SET.send(:__free_num__, inst)
+	end
 end
 
 class String
 	def char_at(index); self[index-1..index-1]; end
 	def substring(startIndex,endIndex); self[startIndex-1...endIndex]; end
-	def find(needle); self.index(needle)+1 end
+	def sfind(needle); self.index(needle)+1 end
 	def rfind(needle); self.rindex(needle)+1 end
+
+	def get(inst)
+		Text2Code::INST_SET.send(:get, inst)
+		set __free_string__ to self
+		Text2Code::INST_SET.send(:__free_string__, inst)
+	end
+
+	def find(inst)
+		Text2Code::INST_SET.send(:find, inst)
+		set __free_string__ to self
+		Text2Code::INST_SET.send(:__free_string__, inst)
+	end
 end
 
 module Text2Code
+	class Utility
+		def self.prompt_num(msg)
+			puts msg
+			gets.to_f
+		end
+		def self.prompt_str(msg)
+			puts msg
+			gets
+		end
+		def self.length(s); s.length; end
+		def self.sqrt(x); Math.sqrt(x); end
+		def self.abs(x); x.abs; end
+	end
 	class Variable
 		def initialize(val=nil)
 			@value = val
@@ -50,18 +92,18 @@ module Text2Code
 	end
 
 	class InstructionComponents
-		attr_reader :has_receiver, :arguments, :message
+		attr_reader :has_receiver, :arguments, :messages
 		#attr_reader :part_types
 
 		def initialize(instComponents=nil)
 			if(instComponents.class == InstructionComponents)
 				@has_receiver = instComponents.has_receiver
-				@message = instComponents.message
+				@messages = instComponents.messages
 				@arguments = instComponents.arguments
 				#@part_types = instComponents.part_types
 			else
 				@has_receiver = false
-				@message = nil;
+				@messages = [];
 				@arguments = 0
 				#@part_types = nil
 			end
@@ -75,29 +117,41 @@ module Text2Code
 				instComponents = InstructionComponents.new(self)
 				@has_receiver = has_receiver
 			when :message
-				message = @message
-				@message = part_val
+				messages = @messages
+				@messages = @messages + [] # copy of array
+				@messages.push(part_val)
 				instComponents = InstructionComponents.new(self)
-				@message = message
+				@messages = messages
 			when :argument
 				@arguments += 1
 				instComponents = InstructionComponents.new(self)
 				@arguments -= 1
 			when :optional
+				# hack : these should be optional so not added as part of the messages
+				messages = @messages
+				@messages = @messages + [] # copy of array
+				@messages.push(part_val)
 				instComponents = InstructionComponents.new(self)
+				@messages = messages
 			end
 
 			return instComponents
 		end
 
 		def is_complete?
-			has_receiver && message != nil
+			has_receiver && @messages != []
 		end
 
 		def has_schema(inst)
 			return inst.arguments.length == @arguments && 
-				   (!!inst.receiver == @has_receiver || inst.variables.length > 0) && 
-			       (inst.method_name == @message || inst.methods.include?(@message))
+				   (!!inst.receiver == @has_receiver || inst.variables.length > 0) &&
+				   (@messages & inst.methods).length >= (@messages.length < inst.methods.length ? @messages.length : inst.methods.length) && 
+				   (@messages & inst.methods).length >= (@messages.length > inst.methods.length ? @messages.length - 1 : inst.methods.length - 1)
+				   # this needs to be fixed
+				   #@messages.all? { |message| inst.methods.include?(message) } && 
+				   #true
+				   #inst.methods.all? { |message| @messages.include?(message) }
+			       #(inst.method_name == @message || inst.methods.include?(@message))
 		end
 	end
 
@@ -111,6 +165,7 @@ module Text2Code
 
 		def self.instruction_types
 			[:args, :receiver_last]
+			#[:receiver_last, :args]
 		end
 
 		def self.create_all_instruction_types(*args)
@@ -154,10 +209,12 @@ module Text2Code
 	class InstructionSet
 		def initialize
 			@instruction_schemas = {:method_missing => [[InstructionComponents.new,:get]]} #name-value pairs
+			#@instruction_schemas = {}
 			@variable_set = {}
 		end
 
 		def add_instruction_schema(schema_parts, method_to_call)
+			# Consider saving current instead of previous
 			prev_inst_comps = InstructionComponents.new
 			curr_inst_comps = []
 			schema_parts.reverse.each_with_index do |part, index|
@@ -195,11 +252,11 @@ module Text2Code
 						instruction.methods.push(method_name) unless is_variable
 						instruction.variables.push(method_nameV) if is_variable
 
-						pair = inst_component_method_pairs_arr.detect { |component| component[0].has_schema(instruction)}#; p component}
+						pair = inst_component_method_pairs_arr.detect { |component| component[0].has_schema(instruction) }
 						method_to_call = pair[1] if pair.class == Array
 
 						if pair
-							instruction.method_name = instruction.method_name || pair[0].message
+							#instruction.method_name = instruction.method_name || pair[0].message
 							instruction.receiver = instruction.receiver || @variable_set[instruction.variables.shift()] if (pair && pair[0].has_receiver)
 						end
 
@@ -210,6 +267,7 @@ module Text2Code
 						if is_variable && instruction_to_run.receiver == nil
 							instruction_to_run.receiver = @variable_set[instruction_to_run.variables.shift()]
 						end
+						instruction_to_run.receiver = instruction_to_run.receiver || Utility
 						return instruction_to_run.receiver.send(method_to_call, *instruction_to_run.arguments)
 					end
 
@@ -218,35 +276,6 @@ module Text2Code
 					nil
 				end
 			end
-
-			puts set x to 5
-			puts increase x by (x + 8)
-			puts divide x by (x/2)
-
-			puts @variable_set
-			puts x is even
-			puts x is odd
-			puts x is positive
-			puts x is whole
-			#set x to 5.5
-			puts x is whole
-			set x to 49.5
-			puts x is prime
-			#puts (absolute of -4.5).whole?
-			puts sqrt 4
-			puts absolute 3
-			puts set x to 49
-			puts set d to 5
-			puts x is divisible by -2*x
-			puts remainder of x divided by (d divided by 5)
-			#puts x divided by 5
-			puts square root of 2.5
-			#puts foo is even
-			set s to "Molloly"
-			puts length of s
-			puts from text s get letter 2
-			puts from text s get substring from 2,4
-			puts from text s find last occurrence of "ol"
 		end
 
 		def getMatchingSchema(partial_inst)
@@ -273,25 +302,34 @@ module Text2Code
 	inst_set.add_instruction_schema([{:variable_ => :receiver}, {:is => :optional}, {:divisible => :message}, {:by => :optional}, :argument] , :divisible_by?)
 	inst_set.add_instruction_schema([{:remainder => :message}, {:of => :optional}, {:variable_ => :receiver}, {:divided => :message}, {:by => :optional}, :argument] , :modulo)
 
-	inst_set.add_instruction_schema([{:absolute => :message}, {:of => :optional}, :receiver], :abs)
-	inst_set.add_instruction_schema([{:absolute => :message}, :receiver], :abs)
-	inst_set.add_instruction_schema([{:sqrt => :message}, :receiver], :sqrt)
-	inst_set.add_instruction_schema([{:square => :message}, {:root => :message}, {:of => :optional}, :receiver], :sqrt)
+	inst_set.add_instruction_schema([{:absolute => :message}, {:of => :optional}, :argument], :abs) #receiver later
+	inst_set.add_instruction_schema([{:absolute => :message}, :argument], :abs) #receiver later
+	inst_set.add_instruction_schema([{:sqrt => :message}, :argument], :sqrt) #receiver later
+	inst_set.add_instruction_schema([{:square => :message}, {:root => :message}, {:of => :optional}, :argument], :sqrt) #receiver later
+		inst_set.add_instruction_schema([{:square => :message}, {:root => :message}, :argument], :sqrt) #receiver later
 
 
-	inst_set.add_instruction_schema([{:length => :message}, {:of => :message}, :receiver], :length)
+	inst_set.add_instruction_schema([{:length => :message}, {:of => :message}, :argument], :length) # replace with receiver later
 	inst_set.add_instruction_schema([{:from => :optional}, {:text => :message}, {:variable_ => :receiver}, {:get => :message}, {:letter => :message}, :argument], :char_at)
 	inst_set.add_instruction_schema([{:from => :optional}, {:text => :message}, {:variable_ => :receiver}, {:get => :message}, 
 		                             {:substring => :message}, {:from => :optional}, :argument, :argument], :substring)
 
 	inst_set.add_instruction_schema([{:from => :optional}, {:text => :message}, {:variable_ => :receiver}, {:find => :message}, 
-		                             {:first => :message}, {:occurrence => :optional}, {:of => :optional}, :argument], :find)
+		                             {:first => :message}, {:occurrence => :optional}, {:of => :optional}, :argument], :sfind)
 	inst_set.add_instruction_schema([{:from => :optional}, {:text => :message}, {:variable_ => :receiver}, {:find => :message}, 
 		                             {:last => :message}, {:occurrence => :optional}, {:of => :optional}, :argument], :rfind)
 
+	inst_set.add_instruction_schema([{:prompt => :message}, {:to => :optional}, {:get => :optional}, {:text => :message}, 
+		                             {:with => :optional}, {:message => :message}, :argument], :prompt_str)
+
+	inst_set.add_instruction_schema([{:prompt => :message}, {:to => :optional}, {:get => :optional}, {:number => :message}, 
+		                             {:with => :optional}, {:message => :message}, :argument], :prompt_num)
+
 	inst_set.create_methods
+
+	INST_SET = inst_set
 end
 
 def method_missing(name, *args)
-	Text2Code::InstructionSet.send(name, *args) # redirect to Text2Code Instruction
+	Text2Code::INST_SET.send(name, *args) # redirect to Text2Code Instruction
 end
